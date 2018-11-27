@@ -53,7 +53,8 @@ Improvements
   is found on the MSDFit, I(Q,t)Fit, ConvFit and F(Q)Fit interfaces.
 - It is now possible to load a Nexus file without it's history on the Elwin interface by unchecking the Load History checkbox.
 - It is now possible to undock the mini-plots on the MSDFit, IqtFit, ConvFit and F(Q)Fit interfaces.
-
+- Chi_squared can now be found in the bottom row of the result workspaces of an MSD Fit, Iqt Fit, Conv Fit or F(Q)Fit.
+  This chi_squared can also now be plotted in the output options.
 
 Bugfixes
 ########
