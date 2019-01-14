@@ -81,13 +81,13 @@ from mantid.simpleapi import *
 
 # For debugging only.
 from mantid.api import FileFinder
-import platform
+import distro
 from six import with_metaclass
 
 
 def currentOSHasGSLv2():
     """ Check whether the current OS should be running GSLv2 """
-    return platform.linux_distribution()[0].lower() == "ubuntu" or platform.mac_ver()[0] != ''
+    return distro.linux_distribution()[0] == "ubuntu" or distro.mac_ver()[0] != ''
 
 
 class ISISIndirectInelasticBase(with_metaclass(ABCMeta, systemtesting.MantidSystemTest)):
