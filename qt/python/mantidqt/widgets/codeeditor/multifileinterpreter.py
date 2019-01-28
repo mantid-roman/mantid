@@ -39,6 +39,7 @@ class MultiPythonFileInterpreter(QWidget):
 
         # attributes
         self.default_content = default_content
+        self.prev_session_tabs = None
 
         # widget setup
         self._tabs = self.create_tabwidget()
@@ -49,6 +50,15 @@ class MultiPythonFileInterpreter(QWidget):
 
         # add a single editor by default
         self.append_new_editor()
+
+    @property
+    def tab_filepaths(self):
+        file_paths = []
+        for idx in range(self.editor_count):
+            file_path = self._tabs.widget(idx).filename
+            if file_path:
+                file_paths.append(file_path)
+        return file_paths
 
     @property
     def editor_count(self):
@@ -174,3 +184,12 @@ class MultiPythonFileInterpreter(QWidget):
     def save_current_file(self):
         """Save the current file"""
         self.current_editor().save()
+
+    def open_files_in_new_tabs(self, filepaths):
+        for filepath in filepaths:
+            self.open_file_in_new_tab(filepath)
+
+    def restore_session_tabs(self):
+        if self.prev_session_tabs is not None:
+            self.open_files_in_new_tabs(self.prev_session_tabs)
+            self.close_tab(0)  # close default empty script
