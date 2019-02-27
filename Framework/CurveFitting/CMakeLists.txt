@@ -1,6 +1,7 @@
 set ( SRC_FILES
 	src/Algorithms/CalculateChiSquared.cpp
 	src/Algorithms/CalculateCostFunction.cpp
+	src/Algorithms/ChebSmooth.cpp
 	src/Algorithms/ConvertToYSpace.cpp
 	src/Algorithms/ConvolveWorkspaces.cpp
 	src/Algorithms/ConvolutionFit.cpp
@@ -54,6 +55,7 @@ set ( SRC_FILES
 	src/Functions/BivariateNormal.cpp
 	src/Functions/Bk2BkExpConvPV.cpp
 	src/Functions/ChebfunBase.cpp
+	src/Functions/ChebfunUtils.cpp
 	src/Functions/Chebyshev.cpp
 	src/Functions/ComptonPeakProfile.cpp
 	src/Functions/ComptonProfile.cpp
@@ -101,6 +103,7 @@ set ( SRC_FILES
 	src/Functions/InelasticDiffRotDiscreteCircle.cpp
 	src/Functions/InelasticDiffSphere.cpp
 	src/Functions/InelasticIsoRotDiff.cpp
+	src/Functions/IntervalChebfun.cpp
 	src/Functions/IsoRotDiff.cpp
 	src/Functions/Keren.cpp
 	src/Functions/LinearBackground.cpp
@@ -163,6 +166,7 @@ set ( SRC_UNITY_IGNORE_FILES src/Fit1D.cpp src/GSLFunctions.cpp )
 set ( INC_FILES
 	inc/MantidCurveFitting/Algorithms/CalculateChiSquared.h
 	inc/MantidCurveFitting/Algorithms/CalculateCostFunction.h
+	inc/MantidCurveFitting/Algorithms/ChebSmooth.h
 	inc/MantidCurveFitting/Algorithms/ConvertToYSpace.h
 	inc/MantidCurveFitting/Algorithms/ConvolutionFit.h
 	inc/MantidCurveFitting/Algorithms/ConvolveWorkspaces.h
@@ -220,6 +224,7 @@ set ( INC_FILES
 	inc/MantidCurveFitting/Functions/BivariateNormal.h
 	inc/MantidCurveFitting/Functions/Bk2BkExpConvPV.h
 	inc/MantidCurveFitting/Functions/ChebfunBase.h
+	inc/MantidCurveFitting/Functions/ChebfunUtils.h
 	inc/MantidCurveFitting/Functions/Chebyshev.h
 	inc/MantidCurveFitting/Functions/ComptonPeakProfile.h
 	inc/MantidCurveFitting/Functions/ComptonProfile.h
@@ -262,6 +267,7 @@ set ( INC_FILES
 	inc/MantidCurveFitting/Functions/InelasticDiffRotDiscreteCircle.h
 	inc/MantidCurveFitting/Functions/InelasticDiffSphere.h
 	inc/MantidCurveFitting/Functions/InelasticIsoRotDiff.h
+	inc/MantidCurveFitting/Functions/IntervalChebfun.h
 	inc/MantidCurveFitting/Functions/IsoRotDiff.h
 	inc/MantidCurveFitting/Functions/Keren.h
 	inc/MantidCurveFitting/Functions/LinearBackground.h
