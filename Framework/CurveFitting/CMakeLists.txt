@@ -1,4 +1,5 @@
 set ( SRC_FILES
+	src/Algorithms/AdaptiveFit.cpp
 	src/Algorithms/CalculateChiSquared.cpp
 	src/Algorithms/CalculateCostFunction.cpp
 	src/Algorithms/ChebSmooth.cpp
@@ -164,6 +165,7 @@ set ( SRC_FILES
 set ( SRC_UNITY_IGNORE_FILES src/Fit1D.cpp src/GSLFunctions.cpp )
 
 set ( INC_FILES
+	inc/MantidCurveFitting/Algorithms/AdaptiveFit.h
 	inc/MantidCurveFitting/Algorithms/CalculateChiSquared.h
 	inc/MantidCurveFitting/Algorithms/CalculateCostFunction.h
 	inc/MantidCurveFitting/Algorithms/ChebSmooth.h

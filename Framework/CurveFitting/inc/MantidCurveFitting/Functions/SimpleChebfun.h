@@ -8,7 +8,7 @@
 #define MANTID_CURVEFITTING_SIMPLECHEBFUN_H_
 
 #include "MantidCurveFitting/Functions/ChebfunBase.h"
-#include "MantidKernel/System.h"
+#include "MantidCurveFitting/DllConfig.h"
 
 namespace Mantid {
 namespace CurveFitting {
@@ -19,7 +19,7 @@ namespace Functions {
 
   Main functionality is implemented in ChebfunBase class.
 */
-class DLLExport SimpleChebfun {
+class MANTID_CURVEFITTING_DLL SimpleChebfun {
 public:
   /// Constructor.
   SimpleChebfun(size_t n, ChebfunFunctionType fun, double start, double end);
