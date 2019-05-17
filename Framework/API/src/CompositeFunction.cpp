@@ -62,7 +62,7 @@ std::string CompositeFunction::writeToString(
   std::ostringstream ostr;
 
   // if empty just return function name
-  if (nFunctions() == 0) {
+  if (m_functions.size() == 0) {
     return "name=" + name();
   }
 
@@ -79,8 +79,8 @@ std::string CompositeFunction::writeToString(
     ostr << parentLocalAttributesStr << ';';
   }
   const auto localAttr = this->getLocalAttributeNames();
-  for (size_t i = 0; i < nFunctions(); i++) {
-    IFunction_sptr fun = getFunction(i);
+  for (size_t i = 0; i < m_functions.size(); i++) {
+    IFunction_sptr fun = getFunctionPrivate(i);
     bool isComp =
         boost::dynamic_pointer_cast<CompositeFunction>(fun) != nullptr;
     if (isComp)
@@ -98,7 +98,7 @@ std::string CompositeFunction::writeToString(
     ostr << fun->writeToString(localAttributesStr.str());
     if (isComp)
       ostr << ')';
-    if (i < nFunctions() - 1) {
+    if (i < m_functions.size() - 1) {
       ostr << ';';
     }
   }
@@ -140,7 +140,7 @@ void CompositeFunction::setWorkspace(boost::shared_ptr<const Workspace> ws) {
 void CompositeFunction::setMatrixWorkspace(
     boost::shared_ptr<const MatrixWorkspace> workspace, size_t wi,
     double startX, double endX) {
-  for (size_t iFun = 0; iFun < nFunctions(); ++iFun) {
+  for (size_t iFun = 0; iFun < m_functions.size(); ++iFun) {
     m_functions[iFun]->setMatrixWorkspace(workspace, wi, startX, endX);
   }
 }
@@ -154,7 +154,7 @@ void CompositeFunction::function(const FunctionDomain &domain,
                                  FunctionValues &values) const {
   FunctionValues tmp(domain);
   values.zeroCalculated();
-  for (size_t iFun = 0; iFun < nFunctions(); ++iFun) {
+  for (size_t iFun = 0; iFun < m_functions.size(); ++iFun) {
     m_functions[iFun]->function(domain, tmp);
     values += tmp;
   }
@@ -170,9 +170,9 @@ void CompositeFunction::functionDeriv(const FunctionDomain &domain,
   if (getAttribute("NumDeriv").asBool()) {
     calNumericalDeriv(domain, jacobian);
   } else {
-    for (size_t iFun = 0; iFun < nFunctions(); ++iFun) {
+    for (size_t iFun = 0; iFun < m_functions.size(); ++iFun) {
       PartialJacobian J(&jacobian, paramOffset(iFun));
-      getFunction(iFun)->functionDeriv(domain, J);
+      getFunctionPrivate(iFun)->functionDeriv(domain, J);
     }
   }
 }
@@ -239,7 +239,7 @@ void CompositeFunction::setParameter(const std::string &name,
   std::string pname;
   size_t index;
   parseName(name, index, pname);
-  getFunction(index)->setParameter(pname, value, explicitlySet);
+  getFunctionPrivate(index)->setParameter(pname, value, explicitlySet);
 }
 
 /**
@@ -252,7 +252,7 @@ void CompositeFunction::setParameterDescription(
   std::string pname;
   size_t index;
   parseName(name, index, pname);
-  getFunction(index)->setParameterDescription(pname, description);
+  getFunctionPrivate(index)->setParameterDescription(pname, description);
 }
 
 /**
@@ -264,7 +264,7 @@ double CompositeFunction::getParameter(const std::string &name) const {
   std::string pname;
   size_t index;
   parseName(name, index, pname);
-  return getFunction(index)->getParameter(pname);
+  return getFunctionPrivate(index)->getParameter(pname);
 }
 
 /// Total number of parameters
@@ -279,7 +279,7 @@ size_t CompositeFunction::parameterIndex(const std::string &name) const {
   std::string pname;
   size_t index;
   parseName(name, index, pname);
-  return getFunction(index)->parameterIndex(pname) + m_paramOffsets[index];
+  return getFunctionPrivate(index)->parameterIndex(pname) + m_paramOffsets[index];
 }
 
 /// Returns the name of parameter
@@ -383,7 +383,7 @@ void CompositeFunction::checkFunction() {
         boost::dynamic_pointer_cast<CompositeFunction>(f);
     if (cf)
       cf->checkFunction();
-    addFunction(f);
+    addFunctionPrivate(f);
   }
 }
 
@@ -402,13 +402,18 @@ void CompositeFunction::clear() {
  * @return The function index
  */
 size_t CompositeFunction::addFunction(IFunction_sptr f) {
+  return addFunctionPrivate(f);
+}
+
+size_t CompositeFunction::addFunctionPrivate(IFunction_sptr f) {
   m_IFunction.insert(m_IFunction.end(), f->nParams(), m_functions.size());
   m_functions.push_back(f);
   //?f->init();
   if (m_paramOffsets.empty()) {
     m_paramOffsets.push_back(0);
     m_nParams = f->nParams();
-  } else {
+  }
+  else {
     m_paramOffsets.push_back(m_nParams);
     m_nParams += f->nParams();
   }
@@ -419,13 +424,13 @@ size_t CompositeFunction::addFunction(IFunction_sptr f) {
  * @param i :: The index of the function to remove
  */
 void CompositeFunction::removeFunction(size_t i) {
-  if (i >= nFunctions()) {
+  if (i >= m_functions.size()) {
     throw std::out_of_range("Function index (" + std::to_string(i) +
-                            ") out of range (" + std::to_string(nFunctions()) +
+                            ") out of range (" + std::to_string(m_functions.size()) +
                             ").");
   }
 
-  IFunction_sptr fun = getFunction(i);
+  IFunction_sptr fun = getFunctionPrivate(i);
   // Reduction in parameters
   size_t dnp = fun->nParams();
 
@@ -454,7 +459,7 @@ void CompositeFunction::removeFunction(size_t i) {
   m_nParams -= dnp;
   // Shift the parameter offsets down by the total number of i-th function's
   // params
-  for (size_t j = i + 1; j < nFunctions(); j++) {
+  for (size_t j = i + 1; j < m_functions.size(); j++) {
     m_paramOffsets[j] -= dnp;
   }
   m_paramOffsets.erase(m_paramOffsets.begin() + i);
@@ -483,13 +488,13 @@ void CompositeFunction::replaceFunctionPtr(const IFunction_sptr f_old,
  * @param f :: A pointer to the new function
  */
 void CompositeFunction::replaceFunction(size_t i, IFunction_sptr f) {
-  if (i >= nFunctions()) {
+  if (i >= m_functions.size()) {
     throw std::out_of_range("Function index (" + std::to_string(i) +
-                            ") out of range (" + std::to_string(nFunctions()) +
+                            ") out of range (" + std::to_string(m_functions.size()) +
                             ").");
   }
 
-  IFunction_sptr fun = getFunction(i);
+  IFunction_sptr fun = getFunctionPrivate(i);
   size_t np_old = fun->nParams();
 
   size_t np_new = f->nParams();
@@ -518,7 +523,7 @@ void CompositeFunction::replaceFunction(size_t i, IFunction_sptr f) {
   m_nParams += dnp;
   // Shift the parameter offsets down by the total number of i-th function's
   // params
-  for (size_t j = i + 1; j < nFunctions(); j++) {
+  for (size_t j = i + 1; j < m_functions.size(); j++) {
     m_paramOffsets[j] += dnp;
   }
 
@@ -530,10 +535,14 @@ void CompositeFunction::replaceFunction(size_t i, IFunction_sptr f) {
  * @return function at the requested index
  */
 IFunction_sptr CompositeFunction::getFunction(std::size_t i) const {
-  if (i >= nFunctions()) {
+  return getFunctionPrivate(i);
+}
+
+IFunction_sptr CompositeFunction::getFunctionPrivate(std::size_t i) const {
+  if (i >= m_functions.size()) {
     throw std::out_of_range("Function index (" + std::to_string(i) +
-                            ") out of range (" + std::to_string(nFunctions()) +
-                            ").");
+      ") out of range (" + std::to_string(m_functions.size()) +
+      ").");
   }
   return m_functions[i];
 }
@@ -559,7 +568,7 @@ size_t CompositeFunction::functionIndex(std::size_t i) const {
  * @param name :: Receives the parameter name
  */
 void CompositeFunction::parseName(const std::string &varName, size_t &index,
-                                  std::string &name) {
+                                  std::string &name) const {
   size_t i = varName.find('.');
   if (i == std::string::npos) {
     throw std::invalid_argument("Parameter " + varName + " not found.");
@@ -623,8 +632,8 @@ void CompositeFunction::applyTies() {
   if (hasOrderedTies()) {
     applyOrderedTies();
   } else {
-    for (size_t i = 0; i < nFunctions(); i++) {
-      getFunction(i)->applyTies();
+    for (size_t i = 0; i < m_functions.size(); i++) {
+      getFunctionPrivate(i)->applyTies();
     }
     IFunction::applyTies();
   }
@@ -635,8 +644,8 @@ void CompositeFunction::applyTies() {
  */
 void CompositeFunction::clearTies() {
   IFunction::clearTies();
-  for (size_t i = 0; i < nFunctions(); i++) {
-    getFunction(i)->clearTies();
+  for (size_t i = 0; i < m_functions.size(); i++) {
+    getFunctionPrivate(i)->clearTies();
   }
 }
 
@@ -689,8 +698,8 @@ void CompositeFunction::declareParameter(const std::string &name,
 void CompositeFunction::setUpForFit() {
   IFunction::setUpForFit();
   // set up the member functions
-  for (size_t i = 0; i < nFunctions(); i++) {
-    getFunction(i)->setUpForFit();
+  for (size_t i = 0; i < m_functions.size(); i++) {
+    getFunctionPrivate(i)->setUpForFit();
   }
   // unfortuately the code below breaks some system tests (IRISFuryAndFuryFit)
   // it looks as if using numeric derivatives can give different fit results
@@ -744,7 +753,7 @@ void CompositeFunction::removeConstraint(const std::string &parName) {
   } else {
     size_t iPar = parameterIndex(parName);
     size_t iFun = functionIndex(iPar);
-    getFunction(iFun)->removeConstraint(parameterLocalName(iPar));
+    getFunctionPrivate(iFun)->removeConstraint(parameterLocalName(iPar));
   }
 }
 
@@ -768,8 +777,8 @@ CompositeFunction::getParameterIndex(const ParameterReference &ref) const {
   if (ref.getLocalFunction() == this && ref.getLocalIndex() < nParams()) {
     return ref.getLocalIndex();
   }
-  for (size_t iFun = 0; iFun < nFunctions(); iFun++) {
-    IFunction_sptr fun = getFunction(iFun);
+  for (size_t iFun = 0; iFun < m_functions.size(); iFun++) {
+    IFunction_sptr fun = getFunctionPrivate(iFun);
     size_t iLocalIndex = fun->getParameterIndex(ref);
     if (iLocalIndex < fun->nParams()) {
       return m_paramOffsets[iFun] + iLocalIndex;
@@ -785,8 +794,8 @@ CompositeFunction::getParameterIndex(const ParameterReference &ref) const {
  */
 IFunction_sptr
 CompositeFunction::getContainingFunction(const ParameterReference &ref) const {
-  for (size_t iFun = 0; iFun < nFunctions(); iFun++) {
-    IFunction_sptr fun = getFunction(iFun);
+  for (size_t iFun = 0; iFun < m_functions.size(); iFun++) {
+    IFunction_sptr fun = getFunctionPrivate(iFun);
     if (fun->getParameterIndex(ref) < fun->nParams()) {
       return fun;
     }
@@ -796,13 +805,13 @@ CompositeFunction::getContainingFunction(const ParameterReference &ref) const {
 
 /// Get number of domains required by this function
 size_t CompositeFunction::getNumberDomains() const {
-  auto n = nFunctions();
+  auto n = m_functions.size();
   if (n == 0) {
     return 1;
   }
-  size_t nd = getFunction(0)->getNumberDomains();
+  size_t nd = getFunctionPrivate(0)->getNumberDomains();
   for (size_t iFun = 1; iFun < n; ++iFun) {
-    if (getFunction(0)->getNumberDomains() != nd) {
+    if (getFunctionPrivate(0)->getNumberDomains() != nd) {
       throw std::runtime_error("CompositeFunction has members with "
                                "inconsistent domain numbers.");
     }
@@ -823,11 +832,11 @@ CompositeFunction::createEquivalentFunctions() const {
         1, FunctionFactory::Instance().createInitialized(asString()));
   }
 
-  auto nf = nFunctions();
+  auto nf = m_functions.size();
   std::vector<std::vector<IFunction_sptr>> equiv;
   equiv.reserve(nf);
   for (size_t i = 0; i < nf; ++i) {
-    equiv.push_back(getFunction(i)->createEquivalentFunctions());
+    equiv.push_back(getFunctionPrivate(i)->createEquivalentFunctions());
   }
 
   std::vector<IFunction_sptr> funs;

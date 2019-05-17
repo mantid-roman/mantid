@@ -18,10 +18,13 @@ void FunctionParameterDecorator::setDecoratedFunction(
     const std::string &wrappedFunctionName) {
   IFunction_sptr fn =
       FunctionFactory::Instance().createFunction(wrappedFunctionName);
+  setDecoratedFunction(fn);
+}
 
+void FunctionParameterDecorator::setDecoratedFunction(
+  const IFunction_sptr &fn) {
   beforeDecoratedFunctionSet(fn);
-
-  setDecoratedFunctionPrivate(fn);
+  m_wrappedFunction = fn;
 }
 
 IFunction_sptr FunctionParameterDecorator::getDecoratedFunction() const {
@@ -41,7 +44,7 @@ IFunction_sptr FunctionParameterDecorator::clone() const {
   IFunction_sptr decoratedFn = getDecoratedFunction();
 
   if (decoratedFn) {
-    cloned->setDecoratedFunctionPrivate(decoratedFn->clone());
+    cloned->setDecoratedFunction(decoratedFn->clone());
   }
 
   return cloned;
@@ -323,11 +326,6 @@ void FunctionParameterDecorator::addTie(std::unique_ptr<ParameterTie> tie) {
 void FunctionParameterDecorator::beforeDecoratedFunctionSet(
     const IFunction_sptr &fn) {
   UNUSED_ARG(fn);
-}
-
-void FunctionParameterDecorator::setDecoratedFunctionPrivate(
-    const IFunction_sptr &fn) {
-  m_wrappedFunction = fn;
 }
 
 } // namespace API

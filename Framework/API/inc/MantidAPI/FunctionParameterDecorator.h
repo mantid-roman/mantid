@@ -32,6 +32,7 @@ public:
   // still segfaults with = default
   FunctionParameterDecorator() : IFunction(), m_wrappedFunction() {}
   void setDecoratedFunction(const std::string &wrappedFunctionName);
+  void setDecoratedFunction(const IFunction_sptr &fn);
   IFunction_sptr getDecoratedFunction() const;
 
   IFunction_sptr clone() const override;
@@ -131,7 +132,6 @@ protected:
   ParameterStatus getParameterStatus(size_t i) const override;
 
   virtual void beforeDecoratedFunctionSet(const IFunction_sptr &fn);
-  void setDecoratedFunctionPrivate(const IFunction_sptr &fn);
 
   IFunction_sptr m_wrappedFunction;
 };

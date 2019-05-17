@@ -121,6 +121,7 @@ set(SRC_FILES
     src/Functions/ReflectivityMulf.cpp
     src/Functions/Resolution.cpp
     src/Functions/SimpleChebfun.cpp
+    src/Functions/SqwFunction.cpp
     src/Functions/StaticKuboToyabe.cpp
     src/Functions/StaticKuboToyabeTimesExpDecay.cpp
     src/Functions/StaticKuboToyabeTimesGausDecay.cpp
@@ -281,6 +282,7 @@ set(INC_FILES
     inc/MantidCurveFitting/Functions/ReflectivityMulf.h
     inc/MantidCurveFitting/Functions/Resolution.h
     inc/MantidCurveFitting/Functions/SimpleChebfun.h
+    inc/MantidCurveFitting/Functions/SqwFunction.h
     inc/MantidCurveFitting/Functions/StaticKuboToyabe.h
     inc/MantidCurveFitting/Functions/StaticKuboToyabeTimesExpDecay.h
     inc/MantidCurveFitting/Functions/StaticKuboToyabeTimesGausDecay.h
@@ -432,6 +434,7 @@ set(TEST_FILES
     Functions/ReflectivityMulfTest.h
     Functions/ResolutionTest.h
     Functions/SimpleChebfunTest.h
+    Functions/SqwFunctionTest.h
     Functions/StaticKuboToyabeTest.h
     Functions/StaticKuboToyabeTimesExpDecayTest.h
     Functions/StaticKuboToyabeTimesGausDecayTest.h

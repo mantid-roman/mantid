@@ -213,8 +213,10 @@ protected:
 
 private:
   /// Extract function index and parameter name from a variable name
-  static void parseName(const std::string &varName, size_t &index,
-                        std::string &name);
+  virtual void parseName(const std::string &varName, size_t &index,
+                        std::string &name) const;
+  IFunction_sptr getFunctionPrivate(std::size_t i) const;
+  size_t addFunctionPrivate(IFunction_sptr f);
 
   /// Pointers to the included funtions
   std::vector<IFunction_sptr> m_functions;
